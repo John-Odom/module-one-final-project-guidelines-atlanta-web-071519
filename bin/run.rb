@@ -1,12 +1,2 @@
 require_relative '../config/environment'
-
-def greet
-    puts "==============="
-    puts "Welcome to Movies on Command! Discover and rate any movies you watch.  Then you can reference this app to refresh your memory about the movie."
-    puts
-    puts "==============="
-end
-
-greet
-
-puts "HELLO WORLD"
+require_relative 'cli'
