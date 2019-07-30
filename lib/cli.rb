@@ -1,34 +1,52 @@
 class CLI
     def run
+        @prompt = TTY::Prompt.new
+        puts "\n\n==============="
+        puts "Welcome to Movies on Command! Discover and rate any movies you watch or are interested in."
         puts "==============="
-        puts "Welcome to Movies on Command! Discover and rate any movies you watch.  Then you can reference this app to refresh your memory about the movie."
-        puts "==============="
-        username_to_screen
-    end
-    def username_to_screen
-        puts "Enter your username.  If you don't have a username yet, type 0"
-        @answer = gets.chomp
-        if answer != 0
-            User.find_by(username: @answer)
-        else 
-            puts " Please create a unique username.  If you aren't unique, we will make one for you... you can update this later"
+        # sleep 3
+        while true
+            main_menu
         end
     end
-#     def welcome
-#         puts "Welcome, user's name, what would you like to do? just type the single letter"
-#         puts "C - Create a new rating"
-#         puts "R - Read through my ratings"
-#         puts "U - Update any of my ratings"
-#         puts "D - Destroy a rating"
-#         puts "Y - See any other methods available"
-#     end
-#     def welcome_action
-#         response = gets.chomp
-#     end
-# end
 
-#     greet
+    def main_menu
+        choices = ["Login/signup", "Read a Review", "Write a Review", "Update a Review", "Exit"]
+        choice = @prompt.enum_select("Please select one of the following:", choices)
+        if choice == "Login/signup"
+            login
+        elsif choice == "Read a Review"
+            read_review
+        elsif choice == "Write a Review"
+            write_review
+        elsif choice == "Update a Review"
+            update_review
+        elsif choice == "Exit"
+            exit
+        end
+    end
 
 
-    puts "HELLO WORLD"
+
+
+    def login
+        puts "What's your name?"
+        name = gets.chomp
+        @user = User.find_or_create_by(name: name)
+    end
+
+    def read_review
+        choices = []
+        Review.all.each do |review|
+            movie = Movie.find_by(id: review.movie_id)
+            choices << "#{movie.title}"
+        end
+        choice = @prompt.enum_select("Please select a movie to read its reviews:", choices)
+        # selection = gets.chomp
+        movie_selected = Movie.find_by(title: choice)
+        review = Review.find_by(movie_id: movie_selected.id)
+            puts "rating: #{review.rating}/5"
+            puts "notes: #{review.notes}"
+            sleep 5
+    end
 end
