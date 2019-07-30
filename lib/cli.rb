@@ -72,9 +72,32 @@ class CLI
         end
     end
     def update_review
+        choices = []
         if @user
-            puts"\n\ntest"
-            sleep 2
+            users_reviews = Review.where(user_id: self.user.id)
+            users_reviews.each do |review|
+                user_movie = Movie.find_by(id: review.movie_id)
+                choices << "#{user_movie.title}"
+            end
+            choice = @prompt.enum_select("Here's a list of movies that you have reviewed. Which one would you like to update?", choices)
+            chosen_movie = Movie.find_by(title: choice)
+            chosen_review = Review.find_by(movie_id: chosen_movie.id)
+            puts "You originally rated this movie a #{chosen_review.rating}/5. What is your updated rating?"
+            puts "note - you can rate it the same if you just want to update your notes."
+            new_rating = gets.chomp
+            puts "\nbelow are the notes:\n"
+            puts "#{chosen_review.notes}"
+            selection = @prompt.enum_select("Would you like to overwrite or append to your notes?", ["Overwrite", "Append to"])
+            if selection == "Overwrite"
+                puts "What are your new notes for #{chosen_movie.title}"
+                new_notes = gets.chomp
+                chosen_review.update(notes: new_notes, rating: new_rating)
+            elsif "Append to"
+                puts "What would you like to add to your notes?"
+                appended_notes = "... " + gets.chomp
+                final_notes = chosen_review.notes << appended_notes
+                chosen_review.update(notes: final_notes, rating: new_rating)
+            end
         else 
             puts "\n\nYou must be logged in to update your reviews. Please log in or sign up."
             sleep 3
