@@ -1,4 +1,5 @@
 class CLI
+    attr_reader :user
     def run
         @prompt = TTY::Prompt.new
         puts "\n\n==============="
@@ -46,7 +47,6 @@ class CLI
         review = Review.where(movie_id: movie_selected.id)
         review.each do |r|
             person = User.find_by(id: r.user_id)
-            #binding.pry
             puts "\n#{person.name}'s review:"
             puts "rating: #{r.rating}/5"
             puts "notes: #{r.notes}"
@@ -55,9 +55,29 @@ class CLI
         end
     end
     
-    # def write_review
-    #     puts "What's the name of the movie that you would like to write a review about?"
-    #     movie_title = gets.chomp
-                
-    # end
+    def write_review
+        if @user
+            #binding.pry
+            puts "What's the name of the movie that you would like to write a review about?"
+            movie_title = gets.chomp
+            puts "Great! What would you rate #{movie_title} on a scale of 1 to 5?"
+            movie_rating = gets.chomp
+            puts "What notes do you have about #{movie_title}?"
+            movie_notes = gets.chomp
+            movie = Movie.find_or_create_by(title: movie_title)
+            review = Review.create(user_id: self.user.id, movie_id: movie.id, rating: movie_rating, notes: movie_notes)
+        else 
+            puts "\n\nYou must be logged in to write a review. Please log in or sign up."
+            sleep 3
+        end
+    end
+    def update_review
+        if @user
+            puts"\n\ntest"
+            sleep 2
+        else 
+            puts "\n\nYou must be logged in to update your reviews. Please log in or sign up."
+            sleep 3
+        end
+    end
 end
