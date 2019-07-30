@@ -42,11 +42,22 @@ class CLI
             choices << "#{movie.title}"
         end
         choice = @prompt.enum_select("Please select a movie to read its reviews:", choices)
-        # selection = gets.chomp
         movie_selected = Movie.find_by(title: choice)
-        review = Review.find_by(movie_id: movie_selected.id)
-            puts "rating: #{review.rating}/5"
-            puts "notes: #{review.notes}"
-            sleep 5
+        review = Review.where(movie_id: movie_selected.id)
+        review.each do |r|
+            person = User.find_by(id: r.user_id)
+            #binding.pry
+            puts "\n#{person.name}'s review:"
+            puts "rating: #{r.rating}/5"
+            puts "notes: #{r.notes}"
+            puts
+            #sleep 5
+        end
     end
+    
+    # def write_review
+    #     puts "What's the name of the movie that you would like to write a review about?"
+    #     movie_title = gets.chomp
+                
+    # end
 end
