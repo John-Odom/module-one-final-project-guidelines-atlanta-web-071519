@@ -2,8 +2,10 @@ class CLI
     attr_reader :user
     def run
         @prompt = TTY::Prompt.new
+        @font = TTY::Font.new(:standard)
+        @pastel = Pastel.new
         puts "\n\n==============="
-        puts "Welcome to Movies on Command! Discover and rate any movies you watch or are interested in."
+        puts @pastel.yellow.on_blue(@font.write("Movies  on  Command"))
         puts "==============="
         # sleep 3
         while true
@@ -22,13 +24,16 @@ class CLI
         elsif choice == "Update or Delete a Review"
             update_review
         elsif choice == "Exit"
+            #`say "Thanks for choosing movies on command"`
+            puts "Goodbye!"
             exit
         end
     end
     def login
-        puts "What's your name?"
+        puts @pastel.yellow.bold("What's Your Name?")
         name = gets.chomp
         @user = User.find_or_create_by(name: name)
+        puts @pastel.yellow.bold("Welcome, #{name}! \n")
     end
     def read_review
         choices = []
@@ -42,9 +47,10 @@ class CLI
         review = Review.where(movie_id: movie_selected.id)
         review.each do |r|
             person = User.find_by(id: r.user_id)
-            puts "\n#{person.name}'s review:"
-            puts "rating: #{r.rating}/5"
-            puts "notes: #{r.notes}"
+            puts @pastel.yellow.bold.on_blue("\n#{person.name}'s review:")
+            #puts @pastel.yellow(
+            puts @pastel.yellow("rating: #{r.rating}/5")
+            puts @pastel.yellow("notes: #{r.notes}")
             puts
             #sleep 5
             main_menu
