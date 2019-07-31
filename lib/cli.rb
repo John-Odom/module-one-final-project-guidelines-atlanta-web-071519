@@ -13,9 +13,9 @@ class CLI
         end
     end
     def main_menu
-        choices = ["Login/signup", "Read a Review", "Write a Review", "Update or Delete a Review", "Exit"]
+        choices = ["Login/SignUp", "Read a Review", "Write a Review", "Update or Delete a Review", "Exit"]
         choice = @prompt.enum_select("Please select one of the following:", choices)
-        if choice == "Login/signup"
+        if choice == "Login/SignUp"
             login
         elsif choice == "Read a Review"
             read_review
@@ -24,8 +24,8 @@ class CLI
         elsif choice == "Update or Delete a Review"
             update_review
         elsif choice == "Exit"
-            #`say "Thanks for choosing movies on command"`
-            puts "Goodbye!"
+            # `say "Thanks for choosing movies on command. Goodbye!"`
+            puts @pastel.yellow.bold "Goodbye!"
             exit
         end
     end
@@ -37,13 +37,13 @@ class CLI
                 if User.find_by(name: name)
                 @user = User.find_by(name: name)
                 puts @pastel.yellow.bold("Welcome Back, #{name}! \n")
-                else puts "Please Sign-Up."
+                else puts @pastel.yellow.bold "You're not a member of Movie on Command. Please Sign-Up."
                     sleep 2
                 end
             elsif choice == "Sign-Up"
-                puts "Welcome to Movies on Command! Please enter a name:"
+                puts @pastel.yellow.bold "Welcome to Movies on Command! Please enter a name:"
                 name = gets.chomp
-                puts "Hi, #{name}! You are now logged in!" 
+                puts @pastel.yellow.bold "Hi, #{name}! You are now logged in!" 
                 @user = User.find_or_create_by(name: name)
             end
     end
@@ -71,8 +71,7 @@ class CLI
         if @user
             puts @pastel.yellow.bold "What's the name of the movie that you would like to write a review about?"
             movie_title = gets.chomp
-            x = Movie.find_by(title: movie_title)
-            # binding.pry
+            x = Movie.find_or_create_by(title: movie_title)
             if Review.find_by(movie_id: x.id, user_id: self.user.id)
                 puts "You have already reviewed this movie; you can update the review instead."
                 sleep 2
@@ -93,15 +92,15 @@ class CLI
                 elsif choice == "Cancel to Main Menu"
                     puts "Returning to main menu"
                     sleep 2
+                    return main_menu
                 end
-                main_menu
-                puts "What notes do you have about #{movie_title}?"
+                puts @pastel.yellow.bold "What notes do you have about #{movie_title}?"
                 movie_notes = gets.chomp
                 movie = Movie.find_or_create_by(title: movie_title)
                 review = Review.create(user_id: self.user.id, movie_id: movie.id, rating: movie_rating, notes: movie_notes)
             end    
         else 
-            puts "\n\nYou must be logged in to write a review. Please log in or sign up."
+            puts @pastel.yellow.bold "\n\nYou must be logged in to write a review. Please log in or sign up."
             sleep 3
         end
     end
@@ -150,8 +149,9 @@ class CLI
                 main_menu
             end
         else 
-            puts "\n\nYou must be logged in to update your reviews. Please log in or sign up."
+            puts @pastel.yellow.bold "\n\nYou must be logged in to update your reviews. Please log in or sign up."
             sleep 3
         end
     end
 end
+
