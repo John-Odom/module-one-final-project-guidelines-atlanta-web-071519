@@ -7,7 +7,7 @@ class CLI
         puts "\n\n==============="
         puts @pastel.yellow.on_blue(@font.write("Movies  on  Command"))
         puts "==============="
-        # sleep 3
+        `afplay ~/Downloads/welcome.mp3`
         while true
             main_menu
         end
@@ -24,8 +24,9 @@ class CLI
         elsif choice == "Update or Delete a Review"
             update_review
         elsif choice == "Exit"
-            # `say "Thanks for choosing movies on command. Goodbye!"`
-            puts @pastel.yellow.bold "Goodbye!"
+            #puts @pastel.yellow.bold "Goodbye!"
+            puts @pastel.yellow.on_blue(@font.write("Goodbye!!"))
+            `afplay ~/Downloads/tadaah.mp3`
             exit
         end
     end
@@ -101,7 +102,8 @@ class CLI
             end    
         else 
             puts @pastel.yellow.bold "\n\nYou must be logged in to write a review. Please log in or sign up."
-            sleep 3
+            `afplay ~/Downloads/Denied.mp3`
+            sleep 1
         end
     end
     def update_review
@@ -150,7 +152,8 @@ class CLI
             end
         else 
             puts @pastel.yellow.bold "\n\nYou must be logged in to update your reviews. Please log in or sign up."
-            sleep 3
+            `afplay ~/Downloads/Denied.mp3`
+            sleep 1
         end
     end
 end
