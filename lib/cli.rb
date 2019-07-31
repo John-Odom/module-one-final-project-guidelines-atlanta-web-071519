@@ -42,23 +42,22 @@ class CLI
             user = User.find_by(id: review.user_id)
             choices << "#{movie.title}"
         end
-        choice = @prompt.enum_select("Please select a movie to read its reviews:", choices.uniq.sort)
+        choice = @prompt.enum_select(@pastel.yellow.bold("Please select a movie to read its reviews:"), choices.uniq.sort)
         movie_selected = Movie.find_by(title: choice)
         review = Review.where(movie_id: movie_selected.id)
         review.each do |r|
             person = User.find_by(id: r.user_id)
             puts @pastel.yellow.bold.on_blue("\n#{person.name}'s review:")
-            #puts @pastel.yellow(
-            puts @pastel.yellow("rating: #{r.rating}/5")
-            puts @pastel.yellow("notes: #{r.notes}")
+            puts @pastel.yellow("Rating: #{r.rating}/5")
+            puts @pastel.yellow("Notes: #{r.notes}")
             puts
             #sleep 5
-            main_menu
         end
+        main_menu
     end
     def write_review
         if @user
-            puts "What's the name of the movie that you would like to write a review about?"
+            puts @pastel.yellow.bold "What's the name of the movie that you would like to write a review about?"
             movie_title = gets.chomp
             x = Movie.find_by(title: movie_title)
             if Review.find_by(movie_id: x.id, user_id: self.user.id)
@@ -101,13 +100,13 @@ class CLI
                 user_movie = Movie.find_by(id: review.movie_id)
                 choices << "#{user_movie.title}"
             end
-            choice = @prompt.enum_select("Here's a list of movies that you have reviewed. Which one would you like to update/delete?", choices.sort)
+            choice = @prompt.enum_select(@pastel.yellow.bold("Here's a list of movies that you have reviewed. Which one would you like to update/delete?"), choices.sort)
             chosen_movie = Movie.find_by(title: choice)
             next_choice = @prompt.enum_select("Would you like to update or delete?", ["Update", "Delete", "Cancel"])
             if next_choice == "Update"
                 chosen_review = Review.where(movie_id: chosen_movie.id, user_id: self.user.id)
                 chosen_review = chosen_review[0]
-                puts "You originally rated this movie a #{chosen_review.rating}/5. What is your updated rating?"
+                puts @pastel.yellow.bold.on_blue "You originally rated this movie a #{chosen_review.rating}/5. What is your updated rating?"
                 puts "note - you can rate it the same if you just want to update your notes."
                 new_rating = gets.chomp
                 puts "\nbelow are the notes:\n"

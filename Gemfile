@@ -8,3 +8,5 @@ gem "require_all"
 gem 'tty-prompt'
 gem 'tty-font'
 gem 'pastel'
+gem 'rest-client', '~> 2.0', '>= 2.0.2'
+gem 'json', '~> 2.2'
