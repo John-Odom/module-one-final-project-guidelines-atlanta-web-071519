@@ -30,10 +30,22 @@ class CLI
         end
     end
     def login
-        puts @pastel.yellow.bold("What's Your Name?")
-        name = gets.chomp
-        @user = User.find_or_create_by(name: name)
-        puts @pastel.yellow.bold("Welcome, #{name}! \n")
+        choice = @prompt.enum_select("Please select one of the following:", ["Login", "Sign-Up"])
+            if choice == "Login"
+                puts @pastel.yellow.bold("What's Your Name?")
+                name = gets.chomp
+                if User.find_by(name: name)
+                @user = User.find_by(name: name)
+                puts @pastel.yellow.bold("Welcome Back, #{name}! \n")
+                else puts "Please Sign-Up."
+                    sleep 2
+                end
+            elsif choice == "Sign-Up"
+                puts "Welcome to Movies on Command! Please enter a name:"
+                name = gets.chomp
+                puts "Hi, #{name}! You are now logged in!" 
+                @user = User.find_or_create_by(name: name)
+            end
     end
     def read_review
         choices = []
@@ -60,6 +72,7 @@ class CLI
             puts @pastel.yellow.bold "What's the name of the movie that you would like to write a review about?"
             movie_title = gets.chomp
             x = Movie.find_by(title: movie_title)
+            # binding.pry
             if Review.find_by(movie_id: x.id, user_id: self.user.id)
                 puts "You have already reviewed this movie; you can update the review instead."
                 sleep 2
@@ -80,8 +93,8 @@ class CLI
                 elsif choice == "Cancel to Main Menu"
                     puts "Returning to main menu"
                     sleep 2
-                    main_menu
                 end
+                main_menu
                 puts "What notes do you have about #{movie_title}?"
                 movie_notes = gets.chomp
                 movie = Movie.find_or_create_by(title: movie_title)
