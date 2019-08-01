@@ -65,13 +65,20 @@ class CLI
     def read_review
         choices = []
         Review.all.each do |review|
+            # set movie = to id equal to review id in the movie table.
             movie = Movie.find_by(id: review.movie_id)
+            # set user = to id of review's user id in the User table.
             user = User.find_by(id: review.user_id)
+            #append the movie's title into our choices array.
             choices << "#{movie.title}"
         end
+        #choice is eqaul to the decision of the user to the prompt's question. display the choices in abc order and limit 1
         choice = @prompt.enum_select(@pastel.yellow.bold("Please select a movie to read its reviews:"), choices.uniq.sort)
+        # movie_selected = the movie instance where title is equal to our chosen movie
         movie_selected = Movie.find_by(title: choice)
+        # review instance is equal to going into our review table and finding the movie_id thats equal to our movie selected's id.
         review = Review.where(movie_id: movie_selected.id)
+        # loop over the reviews and return information of all reviews on the selected movie.
         review.each do |r|
             person = User.find_by(id: r.user_id)
             puts @pastel.yellow.bold.on_blue("\n#{person.name}'s review:")
