@@ -40,21 +40,25 @@ class CLI
                 if User.find_by(name: name)
                 @user = User.find_by(name: name)
                 puts @pastel.yellow.bold("Welcome Back, #{name}! \n")
-                else puts @pastel.yellow.bold "You're not yet a member of Movie on Command! Please Sign-Up."
+                else puts @pastel.yellow.bold "You're not yet a member of Movies on Command! Please Sign-Up."
                     sleep 2
                 end
             elsif choice == "Sign-Up"
+                name = nil
                 puts @pastel.yellow.bold "Welcome to Movies on Command! Please enter a name:"
-                name = gets.chomp
-                if User.find_by(name: name)
-                    puts "That name is already taken.  Please select a new login name."
-                    sleep 2
-                    return
-                else
-                    puts @pastel.yellow.bold "Hi, #{name}! You are now logged in!" 
-                    @user = User.find_or_create_by(name: name)
-                    sleep 2
+                until User.find_by(name: name)
+                    name = gets.chomp
+                    if User.find_by(name: name)
+                        puts "That name is already taken.  Please select a new login name."
+                        name = nil
+                    else
+                        puts @pastel.yellow.bold "Hi, #{name}! You are now logged in!" 
+                        @user = User.find_or_create_by(name: name)
+                        sleep 2
+                    end
                 end
+                    
+                
             end
     end
     def read_review
@@ -71,9 +75,8 @@ class CLI
             person = User.find_by(id: r.user_id)
             puts @pastel.yellow.bold.on_blue("\n#{person.name}'s review:")
             puts @pastel.yellow("Rating: #{r.rating}/5")
-            puts @pastel.yellow("Notes: #{r.notes}")
-            puts
-            sleep 4
+            puts @pastel.yellow("Notes: #{r.notes}\n\n")
+            sleep 3
         end
         main_menu
     end
@@ -118,44 +121,50 @@ class CLI
     def update_review
         choices = []
         if @user
-            users_reviews = Review.where(user_id: self.user.id)
-            users_reviews.each do |review|
-                user_movie = Movie.find_by(id: review.movie_id)
-                choices << "#{user_movie.title}"
-            end
-            choice = @prompt.enum_select(@pastel.yellow.bold("Here's a list of movies that you have reviewed. Which one would you like to update/delete?"), choices.sort)
-            chosen_movie = Movie.find_by(title: choice)
-            next_choice = @prompt.enum_select("Would you like to update or delete?", ["Update", "Delete", "Cancel"])
-            if next_choice == "Update"
-                chosen_review = Review.where(movie_id: chosen_movie.id, user_id: self.user.id)
-                chosen_review = chosen_review[0]
-                puts @pastel.yellow.bold.on_blue "You originally rated this movie a #{chosen_review.rating}/5. What is your updated rating?"
-                puts "note - you can rate it the same if you just want to update your notes."
-                new_rating = gets.chomp
-                puts "\nbelow are the notes:\n"
-                puts "#{chosen_review.notes}"
-                selection = @prompt.enum_select("Would you like to overwrite or append to your notes?", ["Overwrite", "Append to", "Cancel"])
-                if selection == "Overwrite"
-                    puts "What are your new notes for #{chosen_movie.title}"
-                    new_notes = gets.chomp
-                    chosen_review.update(notes: new_notes, rating: new_rating)
-                elsif selection == "Append to"
-                    puts "What would you like to add to your notes?"
-                    appended_notes = "... " + gets.chomp
-                    final_notes = chosen_review.notes << appended_notes
-                    chosen_review.update(notes: final_notes, rating: new_rating)
-                elsif selection == "Cancel"
+            if Review.find_by(user_id: self.user.id)
+                users_reviews = Review.where(user_id: self.user.id)
+                users_reviews.each do |review|
+                    user_movie = Movie.find_by(id: review.movie_id)
+                    choices << "#{user_movie.title}"
+                end
+                choice = @prompt.enum_select(@pastel.yellow.bold("Here's a list of movies that you have reviewed. Which one would you like to update/delete?"), choices.sort)
+                chosen_movie = Movie.find_by(title: choice)
+                next_choice = @prompt.enum_select("Would you like to update or delete?", ["Update", "Delete", "Cancel"])
+                if next_choice == "Update"
+                    chosen_review = Review.where(movie_id: chosen_movie.id, user_id: self.user.id)
+                    chosen_review = chosen_review[0]
+                    puts @pastel.yellow.bold.on_blue "You originally rated this movie a #{chosen_review.rating}/5. What is your updated rating?"
+                    puts "note - you can rate it the same if you just want to update your notes."
+                    new_rating = gets.chomp
+                    puts "\nbelow are the notes:\n"
+                    puts "#{chosen_review.notes}"
+                    selection = @prompt.enum_select("Would you like to overwrite or append to your notes?", ["Overwrite", "Append to", "Cancel"])
+                    if selection == "Overwrite"
+                        puts "What are your new notes for #{chosen_movie.title}"
+                        new_notes = gets.chomp
+                        chosen_review.update(notes: new_notes, rating: new_rating)
+                    elsif selection == "Append to"
+                        puts "What would you like to add to your notes?"
+                        appended_notes = "... " + gets.chomp
+                        final_notes = chosen_review.notes << appended_notes
+                        chosen_review.update(notes: final_notes, rating: new_rating)
+                    elsif selection == "Cancel"
+                        puts "Returning to main menu"
+                        sleep 2
+                        main_menu
+                    end
+                elsif next_choice == "Delete"
+                    delete_review = Review.where(movie_id: chosen_movie.id, user_id: self.user.id)[0]
+                    delete_review.destroy
+                    puts "Your review has been deleted"
+                    sleep 2
+                elsif next_choice == "Cancel"
                     puts "Returning to main menu"
                     sleep 2
-                    main_menu
+                    return
                 end
-            elsif next_choice == "Delete"
-                delete_review = Review.where(movie_id: chosen_movie.id, user_id: self.user.id)[0]
-                delete_review.destroy
-                puts "Your review has been deleted"
-                sleep 2
-            elsif next_choice == "Cancel"
-                puts "Returning to main menu"
+            else
+                puts "\nYou do not have any reviews yet. You can create a review by selecting it from the main menu\n\n"
                 sleep 2
                 return
             end
