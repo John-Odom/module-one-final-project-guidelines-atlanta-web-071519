@@ -75,17 +75,17 @@ class CLI
         review.each do |r|
             person = User.find_by(id: r.user_id)
             puts @pastel.yellow.bold.on_blue("\n#{person.name}'s review:")
-            puts @pastel.yellow("Rating: #{r.rating}/5")
-            puts @pastel.yellow("Notes: #{r.notes}\n\n")
-            to_youtube = @prompt.enum_select(@pastel.yellow.bold("Would you like to watch a trailer?"), ["Yes", "No"])
-            #binding.pry
-            if to_youtube == "Yes"
-                parsed_movie_selected = movie_selected.title.split.join("+")
-                `open 'https://www.youtube.com/results?search_query=#{parsed_movie_selected}'`
-                return
-            else
-                return
-            end
+            puts @pastel.yellow.bold.on_blue("Rating: #{r.rating}/5")
+            puts @pastel.yellow.bold.on_blue("Notes: #{r.notes}")   
+            puts
+        end
+        to_youtube = @prompt.enum_select(@pastel.yellow.bold("Would you like to watch a trailer?"), ["Yes", "No"])
+        if to_youtube == "Yes"
+            parsed_movie_selected = movie_selected.title.split.join("+")
+            `open 'https://www.youtube.com/results?search_query=#{parsed_movie_selected}'`
+            return
+        else
+            return
         end
         return
     end
