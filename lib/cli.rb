@@ -8,6 +8,8 @@ class CLI
         puts @pastel.yellow.on_blue(@font.write("Movies  on  Command"))
         puts "==============="
         `afplay ~/Downloads/welcome.mp3`
+        puts "Welcome to Movies on Command, where we can read and write reviews of our favorite movies!"
+        puts "==============="
         while true
             main_menu
         end
@@ -38,14 +40,21 @@ class CLI
                 if User.find_by(name: name)
                 @user = User.find_by(name: name)
                 puts @pastel.yellow.bold("Welcome Back, #{name}! \n")
-                else puts @pastel.yellow.bold "You're not a member of Movie on Command. Please Sign-Up."
+                else puts @pastel.yellow.bold "You're not yet a member of Movie on Command! Please Sign-Up."
                     sleep 2
                 end
             elsif choice == "Sign-Up"
                 puts @pastel.yellow.bold "Welcome to Movies on Command! Please enter a name:"
                 name = gets.chomp
-                puts @pastel.yellow.bold "Hi, #{name}! You are now logged in!" 
-                @user = User.find_or_create_by(name: name)
+                if User.find_by(name: name)
+                    puts "That name is already taken.  Please select a new login name."
+                    sleep 2
+                    return
+                else
+                    puts @pastel.yellow.bold "Hi, #{name}! You are now logged in!" 
+                    @user = User.find_or_create_by(name: name)
+                    sleep 2
+                end
             end
     end
     def read_review
@@ -64,7 +73,7 @@ class CLI
             puts @pastel.yellow("Rating: #{r.rating}/5")
             puts @pastel.yellow("Notes: #{r.notes}")
             puts
-            #sleep 5
+            sleep 4
         end
         main_menu
     end
@@ -93,7 +102,7 @@ class CLI
                 elsif choice == "Cancel to Main Menu"
                     puts "Returning to main menu"
                     sleep 2
-                    return main_menu
+                    return
                 end
                 puts @pastel.yellow.bold "What notes do you have about #{movie_title}?"
                 movie_notes = gets.chomp
@@ -148,7 +157,7 @@ class CLI
             elsif next_choice == "Cancel"
                 puts "Returning to main menu"
                 sleep 2
-                main_menu
+                return
             end
         else 
             puts @pastel.yellow.bold "\n\nYou must be logged in to update your reviews. Please log in or sign up."
