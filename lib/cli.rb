@@ -15,7 +15,8 @@ class CLI
         end
     end
     def main_menu
-        choices = ["Login/SignUp", "Read a Review", "Write a Review", "Update or Delete a Review", "Exit"]
+        choices = ["Login/SignUp", "Read a Review", "Write a Review", "Update or Delete a Review", "Delete Account", "Exit"]
+        #prompt user to choose an option.  choice is then equal to their selection
         choice = @prompt.enum_select("Please select one of the following:", choices)
         if choice == "Login/SignUp"
             login
@@ -25,8 +26,9 @@ class CLI
             write_review
         elsif choice == "Update or Delete a Review"
             update_review
+        elsif choice == "Delete Account"
+            delete_account
         elsif choice == "Exit"
-            #puts @pastel.yellow.bold "Goodbye!"
             puts @pastel.yellow.on_blue(@font.write("Goodbye!!"))
             `afplay ~/Downloads/tadaah.mp3`
             exit
@@ -46,22 +48,22 @@ class CLI
             elsif choice == "Sign-Up"
                 name = nil
                 puts @pastel.yellow.bold "Welcome to Movies on Command! Please enter a name:"
+                #While the name is not in the user table, run the following loop:
                 until User.find_by(name: name)
                     name = gets.chomp
+                    #If name entered is equal to name in user table, reject the name.
                     if User.find_by(name: name)
                         puts "That name is already taken.  Please select a new login name."
                         name = nil
+                    #If name is not in our user table, create a new instance.
                     else
                         puts @pastel.yellow.bold "Hi, #{name}! You are now logged in!" 
                         @user = User.find_or_create_by(name: name)
                         sleep 2
                     end
-                end
-                    
-                
+                end         
             end
     end
-    
     def read_review
         choices = []
         Review.all.each do |review|
@@ -70,6 +72,7 @@ class CLI
             # set user = to id of review's user id in the User table.
             user = User.find_by(id: review.user_id)
             #append the movie's title into our choices array.
+            #binding.pry
             choices << "#{movie.title}"
         end
         #choice is eqaul to the decision of the user to the prompt's question. display the choices in abc order and limit 1
@@ -86,7 +89,9 @@ class CLI
             puts @pastel.yellow.bold.on_blue("Notes: #{r.notes}")   
             puts
         end
+        #Prompt users if they would like to view the movie trailer of the review they read.
         to_youtube = @prompt.enum_select(@pastel.yellow.bold("Would you like to watch a trailer?"), ["Yes", "No"])
+        #If they select yes, open youtube with query.
         if to_youtube == "Yes"
             parsed_movie_selected = movie_selected.title.split.join("+")
             `open 'https://www.youtube.com/results?search_query=#{parsed_movie_selected}'`
@@ -104,7 +109,7 @@ class CLI
             if Review.find_by(movie_id: x.id, user_id: self.user.id)
                 puts "You have already reviewed this movie; you can update the review instead."
                 sleep 2
-                update_review
+                return
             else
                 choices = ["Hated it!!", "Wouldn't Recommend", "It was Mediocre", "Pretty Good", "Loved it!", "Cancel to Main Menu"]
                 choice = @prompt.enum_select("On a scale of 1 to 5, what would you rate #{movie_title}?", choices)
@@ -190,5 +195,32 @@ class CLI
             sleep 1
         end
     end
+    def delete_account
+        if @user
+            #`afplay ~/Downloads/give.mp4`
+            choice = @prompt.enum_select("Are you sure you want to delete your account?", ["Yes", "No"])
+            if choice == "Yes"
+                deletion = User.find_by(id: self.user.id)
+                deletion.destroy
+                delete_reviews = Review.where(user_id: self.user.id)[0]
+                if delete_reviews
+                delete_reviews.destroy
+                #`afplay ~/Downloads/bye_felicia.mp4`
+                exit
+                else
+                    #`afplay ~/Downloads/bye_felicia.mp4`
+                    exit
+                end
+            elsif choice == "No"
+                return
+            end
+        else
+        puts @pastel.yellow ("You are not currently logged in.  To delete your account, please log in.")
+        sleep 2
+        return
+        end
+    end
 end
+
+
 
